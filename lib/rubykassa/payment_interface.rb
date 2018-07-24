@@ -9,6 +9,7 @@ module Rubykassa
       login:       'MerchantLogin'.freeze,
       total:       'OutSum'.freeze,
       invoice_id:  'InvId'.freeze,
+      receipt:     'Receipt'.freeze,
       signature:   'SignatureValue'.freeze,
       email:       'Email'.freeze,
       currency:    'IncCurrLabel'.freeze,
@@ -17,7 +18,7 @@ module Rubykassa
       is_test:     'IsTest'.freeze
     }.freeze
 
-    attr_accessor :invoice_id, :total, :params
+    attr_accessor :invoice_id, :total, :receipt, :params
 
     def initialize(&block)
       instance_eval &block if block_given?
@@ -30,7 +31,7 @@ module Rubykassa
 
     def pay_url(extra_params = {})
       extra_params = extra_params.slice :currency, :description, :email,
-                                        :culture
+                                        :culture, :receipt
       result_params = initial_options.merge(extra_params).map do |key, value|
         if key =~ /^shp/
           "#{key}=#{value}"
@@ -46,6 +47,7 @@ module Rubykassa
         login: Rubykassa.login,
         total: @total,
         invoice_id: @invoice_id,
+        receipt: @receipt,
         is_test: test_mode? ? 1 : 0,
         signature: generate_signature_for(:payment)
       }
